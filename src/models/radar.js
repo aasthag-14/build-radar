@@ -14,12 +14,12 @@ const Radar = function () {
   addingQuadrant = 0
   quadrants = [
     { order: 'first', startAngle: 0 },
-    { order: 'second', startAngle: 53.4 },
-    { order: 'third', startAngle: 106.8 },
-    { order: 'fourth', startAngle: 160.2 },
-    { order: 'fifth', startAngle: -160.2 },
-    { order: 'sixth', startAngle: -106.8 },
-    { order: 'seventh', startAngle: -53.4 },
+    { order: 'second', startAngle: 51.4 },
+    { order: 'third', startAngle: 102.8 },
+    { order: 'fourth', startAngle: 154.2 },
+    { order: 'fifth', startAngle: -154.2 },
+    { order: 'sixth', startAngle: -102.8 },
+    { order: 'seventh', startAngle: -51.4 },
   ]
   alternatives = []
   currentSheetName = ''

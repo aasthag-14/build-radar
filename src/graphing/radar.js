@@ -88,7 +88,7 @@ const Radar = function (size, radar) {
         .innerRadius(ringCalculator.getRadius(i))
         .outerRadius(ringCalculator.getRadius(i + 1))
         .startAngle(toRadian(quadrant.startAngle))
-        .endAngle(toRadian(quadrant.startAngle + 53.4))
+        .endAngle(toRadian(quadrant.startAngle - 51.4))
       quadrantGroup
         .append('path')
         .attr('d', arc)
@@ -196,18 +196,73 @@ const Radar = function (size, radar) {
   function calculateBlipCoordinates(blip, chance, minRadius, maxRadius, startAngle) {
     var adjustX = Math.sin(toRadian(startAngle)) - Math.cos(toRadian(startAngle))
     var adjustY = -Math.cos(toRadian(startAngle)) - Math.sin(toRadian(startAngle))
-
     var radius = chance.floating({
       min: minRadius + blip.width / 2,
       max: maxRadius - blip.width / 2,
     })
     var angleDelta = (Math.asin(blip.width / 2 / radius) * 180) / Math.PI
-    angleDelta = angleDelta > 45 ? 45 : angleDelta
+    angleDelta = angleDelta > 51.4 ? 51.4 : angleDelta
     var angle = toRadian(chance.integer({ min: angleDelta, max: 90 - angleDelta }))
-
     var x = center() + radius * Math.cos(angle) * adjustX
     var y = center() + radius * Math.sin(angle) * adjustY
-
+    // console.log(startAngle)
+    if (startAngle === -51.4) return [x - 51.4, y - 51.4]
+    if (startAngle === 51.4) {
+      if (y < 0) {
+        return [x + 10, -y - 45]
+      }
+      if (maxRadius === 67.16666666666667) {
+        return [x + 10, y - 25]
+      }
+      if (maxRadius === 131.75) {
+        return [x + 10, y - 25]
+      }
+      if (maxRadius === 193.75) {
+        return [x + 10, y]
+      }
+      if (maxRadius === 253.16666666666666) {
+        return [x + 10, y - maxRadius + 51.4]
+      }
+      if (maxRadius === 310) {
+        return [x + 10, y - 25]
+      }
+      return [x, y]
+    }
+    if (startAngle === 102.8) {
+      if (maxRadius === 193.75) {
+        return [x + 51.4, y + 51.4]
+      }
+      if (maxRadius === 253.16666666666666) {
+        return [x + startAngle, y + 51.4]
+      }
+      if (maxRadius === 310) {
+        return [x - 51.4, y + 51.4]
+      }
+    }
+    if (startAngle === 154.2) {
+      if (maxRadius === 131.75) {
+        console.log('x,y', x - minRadius, y + minRadius)
+        return [x - minRadius, y + minRadius]
+      }
+      if (maxRadius === 193.75) {
+        return [x - radius + 51.4, y + minRadius]
+      }
+      if (maxRadius === 253.16666666666666) {
+        return [x + 51.4, y]
+      }
+      if (maxRadius === 310) {
+        console.log('------data------')
+        console.log('minRadius', minRadius)
+        console.log('maxRadius', maxRadius)
+        console.log('startAngle', startAngle)
+        console.log('adjust', adjustX, adjustY)
+        console.log('radius', radius)
+        console.log('angleDelta', angleDelta)
+        console.log('angle', angle)
+        console.log('x,y', x + 51.4, y)
+        return [x + 51.4, y]
+      }
+    }
     return [x, y]
   }
 
@@ -237,13 +292,13 @@ const Radar = function (size, radar) {
       var ringBlips = blips.filter(function (blip) {
         return blip.ring() === ring
       })
-
+      // console.log('ringBlips', ringBlips)
       if (ringBlips.length === 0) {
         return
       }
 
       var maxRadius, minRadius
-
+      // console.log('i', i)
       minRadius = ringCalculator.getRadius(i)
       maxRadius = ringCalculator.getRadius(i + 1)
 
@@ -253,20 +308,23 @@ const Radar = function (size, radar) {
         .reduce(function (p, c) {
           return p + c.charCodeAt(0)
         }, 0)
+      // console.log('sumRing', sumRing)
       var sumQuadrant = quadrant
         .name()
         .split('')
         .reduce(function (p, c) {
           return p + c.charCodeAt(0)
         }, 0)
+      // console.log('sumQuadrant', sumQuadrant)
+
       chance = new Chance(Math.PI * sumRing * ring.name().length * sumQuadrant * quadrant.name().length)
 
       var ringList = addRing(ring.name(), order)
       var allBlipCoordinatesInRing = []
 
       ringBlips.forEach(function (blip) {
-        console.log(minRadius, maxRadius, chance)
         const coordinates = findBlipCoordinates(blip, minRadius, maxRadius, startAngle, allBlipCoordinatesInRing)
+        // console.log('coordinates', coordinates)
 
         allBlipCoordinatesInRing.push(coordinates)
         drawBlipInCoordinates(blip, coordinates, order, quadrantGroup, ringList)
@@ -275,7 +333,7 @@ const Radar = function (size, radar) {
   }
 
   function findBlipCoordinates(blip, minRadius, maxRadius, startAngle, allBlipCoordinatesInRing) {
-    const maxIterations = 200
+    const maxIterations = 300
     var coordinates = calculateBlipCoordinates(blip, chance, minRadius, maxRadius, startAngle)
     var iterationCounter = 0
     var foundAPlace = false
@@ -291,6 +349,7 @@ const Radar = function (size, radar) {
     }
 
     if (!foundAPlace && blip.width > MIN_BLIP_WIDTH) {
+      console.log('place not found')
       blip.width = blip.width - 1
       return findBlipCoordinates(blip, minRadius, maxRadius, startAngle, allBlipCoordinatesInRing)
     } else {
@@ -407,7 +466,6 @@ const Radar = function (size, radar) {
 
     var x = 10
     var y = 10
-    console.log('order', order)
     if (order === 'first') {
       x = (4 * size) / 5
       y = (1 * size) / 5
@@ -690,15 +748,11 @@ const Radar = function (size, radar) {
     var rings, quadrants, alternatives, currentSheet
 
     rings = radar.rings()
-    console.log('radar rings from plot func', rings)
     quadrants = radar.quadrants()
-    console.log('radar quadrants from plot func', quadrants)
 
     alternatives = radar.getAlternatives()
-    console.log('radar alternatives from plot func', alternatives)
 
     currentSheet = radar.getCurrentSheet()
-    console.log('radar currentSheet from plot func', currentSheet)
 
     plotRadarHeader()
 
@@ -708,17 +762,14 @@ const Radar = function (size, radar) {
 
     plotQuadrantButtons(quadrants)
 
-    radarElement.style('height', size + 14 + 'px')
+    radarElement.style('height', size + 20 + 'px')
     svg = radarElement.append('svg').call(tip)
-    svg
-      .attr('id', 'radar-plot')
-      .attr('width', size)
-      .attr('height', size + 14)
+    svg.attr('id', 'radar-plot').attr('width', size).attr('height', size)
 
     _.each(quadrants, function (quadrant) {
       var quadrantGroup = plotQuadrant(rings, quadrant)
-      plotLines(quadrantGroup, quadrant)
-      plotTexts(quadrantGroup, rings, quadrant)
+      // plotLines(quadrantGroup, quadrant)
+      // plotTexts(quadrantGroup, rings, quadrant)
       plotBlips(quadrantGroup, rings, quadrant)
     })
 

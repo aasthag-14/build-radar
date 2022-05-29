@@ -71,7 +71,6 @@ const plotRadar = function (title, blips, currentRadarName, alternativeRadars) {
   }
 
   var size = window.innerHeight - 133 < 620 ? 620 : window.innerHeight - 133
-
   new GraphingRadar(size, radar).init().plot()
 }
 

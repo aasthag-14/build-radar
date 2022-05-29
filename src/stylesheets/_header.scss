@@ -124,17 +124,17 @@ header {
       }
       &.fifth {
         color: white;
-        background-color: $green;
+        background-color: yellow;
       }
 
       &.sixth {
         color: white;
-        background-color: $blue;
+        background-color: blue;
       }
 
       &.seventh {
         color: white;
-        background-color: $orange;
+        background-color: maroon;
       }
     }
 
@@ -159,17 +159,17 @@ header {
         color: $white;
       }
       &.fifth {
-        background-color: $green;
+        background-color: yellow;
         color: $white;
       }
 
       &.sixth {
-        background-color: $blue;
+        background-color: blue;
         color: $white;
       }
 
       &.seventh {
-        background-color: $orange;
+        background-color: maroon;
         color: $white;
       }
     }
